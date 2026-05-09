@@ -40,8 +40,12 @@ public:
            "}\n";
   }
 
-  void toFile(string content, string filename = "export",
-              string title = "test") {
+  void toFile(
+      string content, 
+      string filename = "export",
+      string title = "test"
+    ) 
+  {
     ofstream file(filename + ".ly");
     file << this->toLyStr(content, title);
     file.close();

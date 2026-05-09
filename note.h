@@ -3,6 +3,7 @@
 #include <array>
 #include <iostream>
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -10,15 +11,17 @@ using namespace std;
 
 enum class DURATIONS { THIRTYTWO, SIXTEEN, EIGHT, QUARTER, HALF, FULL };
 
+inline constexpr array<const char *, 17> NOTE_NAMES = {
+    "c",   "cis", "des", "d",   "dis", "ees", "e",   "f", "fis",
+    "ges", "g",   "gis", "aes", "a",   "ais", "bes", "b"
+};
+
 class TimeSignature {
 public:
   int num;
   int den;
 
-  string toStr(){
-      return to_string(this->num) + "/" + to_string(this->den);
-  }
-
+  string toStr() { return to_string(this->num) + "/" + to_string(this->den); }
   TimeSignature(int n, int d) : num(n), den(d) {};
 };
 
@@ -60,6 +63,8 @@ public:
 
 class Note {
 public:
+  // refactor with lilypond standard denomination
+  // NOTE_NAMES pitch;
   std::string pitch;
   int octave;
   Duration duration;
@@ -94,7 +99,7 @@ public:
 class Bar {
 public:
   vector<Note> notes;
-  TimeSignature TS = TimeSignature(4, 4);
+  optional<TimeSignature> TS;
 
   Bar(vector<Note> n) : notes(n) {};
 
@@ -108,8 +113,28 @@ public:
   }
 };
 
+class Melody {
+public:
+  vector<Bar> bars;
+  TimeSignature TS = TimeSignature(4, 4);
+
+  Melody(vector<Bar> bars) {
+    this->bars = bars;
+    this->TS = this->bars[0].TS.value_or(TimeSignature(4, 4));
+
+    // TODO handle multiple time signatures in one melody
+    // TimeSignature firstTS(this->bars[0].TS);
+    // for(auto &b : this->bars){
+    //   if(b.TS.den ==  firstTS.den && b.TS.num == firstTS.num){
+    //
+    //   }
+    // }
+  }
+};
+
 class Interval {
 private:
+  // TODO rewrite as array<array> ? with enharnmonic spelling
   inline static const array<string, 12> CHROMATIC_SCALE = {
       "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 
