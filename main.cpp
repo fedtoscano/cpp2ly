@@ -1,26 +1,102 @@
 #include <algorithm>
 #include <array>
 #include <iostream>
+#include <fstream>
 #include <iterator>
 #include <map>
 #include <string>
 #include <vector>
+#include "ly.cpp"
 
 using namespace std;
 
-class Note {
-public:
-  string pitch;
-  int octave;
+// enum class DURATIONS { THIRTYTWO, SIXTEEN, EIGHT, QUARTER, HALF, FULL };
+//
+// class Duration {
+// public:
+//   int quantity;
+//   DURATIONS value;
+//   bool dotted = false;
+//
+//   Duration() : quantity(1), value(DURATIONS::QUARTER) {}
+//   Duration(int q, DURATIONS v) : quantity(q), value(v) {}
+// };
+//
+// class Note {
+// public:
+//   string pitch;
+//   int octave;
+//   Duration duration;
+//
+//   void print() { cout << pitch << octave << "\n"; };
+//
+//   int getOctave() { return this->octave; };
+//
+//   string toLy() {
+//     string ly_p;
+//
+//     // parsing name notes
+//     for (char c : pitch) {
+//       if (c == '#')
+//         ly_p += "is";
+//       else if (c == 'b')
+//         ly_p += "es";
+//       else
+//         ly_p += tolower(c);
+//     }
+//
+//     // parsing octave
+//     if (this->octave >= 4)
+//       ly_p += string(this->octave - 3, '\'');
+//     if (this->octave <= 3)
+//       ly_p += string(3 - this->octave, ',');
+//
+//     // parsing duration
+//     string ly_d;
+//
+//     switch (this->duration.value) {
+//     case DURATIONS::THIRTYTWO:
+//       ly_d = "32";
+//       break;
+//     case DURATIONS::SIXTEEN:
+//       ly_d = "16";
+//       break;
+//     case DURATIONS::EIGHT:
+//       ly_d = "8";
+//       break;
+//     case DURATIONS::QUARTER:
+//       ly_d = "4";
+//       break;
+//     case DURATIONS::HALF:
+//       ly_d = "2";
+//       break;
+//     case DURATIONS::FULL:
+//       ly_d = "1";
+//       break;
+//     };
+//
+//     cout << ly_p + ly_d  << endl;
+//
+//     return ly_p + ly_d;
+//   };
+//
+//   Note(string pitch, int octave, Duration duration) {
+//     this->pitch = pitch;
+//     this->octave = octave;
+//     this->duration = duration;
+//   }
+// };
 
-  void print() { cout << pitch << octave << "\n"; };
+class Bar {
+  public:
+    vector<Note> notes;
 
-  int getOctave() { return this->octave; };
+    Bar(vector<Note> n) : notes(n) {};
 
-  Note(string pitch, int octave) {
-    this->pitch = pitch;
-    this->octave = octave;
-  }
+    string toLy(){
+      // TODO IMPLEMENT
+      return "";
+    }
 };
 
 class Interval {
@@ -49,18 +125,16 @@ public:
     auto t_ptr = find(CHROMATIC_SCALE.begin(), CHROMATIC_SCALE.end(), t);
     int t_idx = distance(CHROMATIC_SCALE.begin(), t_ptr);
 
-    cout << "Index B: " << b_idx << endl;
-    cout << "Index T: " << t_idx << endl;
-
-    cout << "INTERVALLO: " << INTERVAL_NAMES.at(t_idx - b_idx);
+    // cout << "Index B: " << b_idx << endl;
+    // cout << "Index T: " << t_idx << endl;
+    //
+    // cout << "INTERVALLO: " << INTERVAL_NAMES.at(t_idx - b_idx);
 
     return t_idx - b_idx;
   }
 
   Interval(Note b, Note t) : bottom(b), top(t) {
     this->name = this->computeDistance();
-
-    cout << "THIS->NAME: " << this->name;
   }
 };
 
@@ -77,20 +151,44 @@ public:
     cout << "\n";
   }
 
+  string toLy(){
+    string c_ly;
+    for(auto& n : this->notes) c_ly += n.toLy() + " ";
+    string duration;
+    return "<" + c_ly + ">" + duration;
+   
+  };
+
   Chord(string _name, vector<Note> _notes) {
     name = _name;
     notes = _notes;
   };
 };
 
+// ============================================================
+
 int main() {
 
-  Note c("C", 4);
-  Note e("E", 4);
-  Note g("G", 4);
+  Note c("C", 4, Duration(1, DURATIONS::QUARTER));
+  Note e("E", 4, Duration(1, DURATIONS::QUARTER));
+  Note g("G", 4, Duration(1, DURATIONS::QUARTER));
 
   Chord C("C_MAJOR", {c, e, g});
 
-  Interval I(c, g);
+  string c_str = c.toLy();
+  string e_str = e.toLy();
+  string g_str = g.toLy();
+
+  vector<Note> melody = {c, e, g};
+
+  LyConverter lc;
+
+  string output = lc.toLy(melody, "My first export");
+  ofstream file("export.ly");
+
+  file << output;
+  file.close();
+
+  // Interval I(c, g);
   return 0;
 }
