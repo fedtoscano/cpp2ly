@@ -11,6 +11,9 @@ using namespace std;
 
 enum class DURATIONS { THIRTYTWO, SIXTEEN, EIGHT, QUARTER, HALF, FULL };
 
+inline constexpr array <const int, 7>  bk_DURATIONS { 1, 2, 4, 8, 16, 32, 64 };
+
+// change note denomination with this
 inline constexpr array<const char *, 17> NOTE_NAMES = {
     "c",   "cis", "des", "d",   "dis", "ees", "e",   "f", "fis",
     "ges", "g",   "gis", "aes", "a",   "ais", "bes", "b"
@@ -23,6 +26,15 @@ public:
 
   string toStr() { return to_string(this->num) + "/" + to_string(this->den); }
   TimeSignature(int n, int d) : num(n), den(d) {};
+};
+
+class KeySignature {
+  public: 
+    optional<int> flats = 0;
+    optional<int> sharps = 0;
+
+    KeySignature(optional<int> f, optional<int> s): flats(f), sharps(s){};
+
 };
 
 class Duration {
@@ -103,9 +115,9 @@ public:
 
   Bar(vector<Note> n) : notes(n) {};
 
-  string toLy() {
+  string toLy() const {
     string notes_ly;
-    for (const auto &n : notes) {
+    for (auto &n : notes) {
       notes_ly += n.toLy() + " ";
     }
 
@@ -116,7 +128,14 @@ public:
 class Melody {
 public:
   vector<Bar> bars;
+  optional<KeySignature> KS = KeySignature(0, 0);
   TimeSignature TS = TimeSignature(4, 4);
+
+  string toLy(){
+    string bars_ly;
+    for(const auto &b : bars) bars_ly += b.toLy();
+    return bars_ly;
+  };
 
   Melody(vector<Bar> bars) {
     this->bars = bars;
